@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a0a0f">
+<title>Dalgi26 Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0810;
+    --bg2: #1a0f1e;
+    --bg3: #241428;
+    --surface: #2d1a35;
+    --surface2: #3a2244;
+    --accent: #e8647a;
+    --accent2: #f4a0b0;
+    --accent3: #c94060;
+    --gold: #e8c47a;
+    --text: #f5eef8;
+    --text2: #c9b8d4;
+    --text3: #8a7894;
+    --border: rgba(232, 100, 122, 0.15);
+    --border2: rgba(232, 100, 122, 0.3);
+    --success: #6ec6a0;
+    --warning: #e8c47a;
+    --danger: #e87070;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px;
+    transition: opacity 0.6s ease;
+  }
+  #splash .logo-text {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+  }
+  #splash .logo-sub {
+    font-size: 12px;
+    letter-spacing: 6px;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  #splash .berry { font-size: 48px; margin-bottom: 8px; }
+  #splash.hide { opacity: 0; pointer-events: none; }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    display: none;
+    padding: 40px 24px;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+  #setup-screen.active { display: flex; }
+  .setup-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--accent2);
+    line-height: 1.3;
+  }
+  .setup-sub { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  .input-group { display: flex; flex-direction: column; gap: 8px; }
+  .input-label { font-size: 12px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; }
+  .input-field {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--accent); }
+  .input-field::placeholder { color: var(--text3); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:active { transform: scale(0.98); background: var(--accent3); }
+
+  /* ── MAIN APP ── */
+  #app { display: none; padding-bottom: 90px; }
+  #app.active { display: block; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 52px 24px 20px;
+    background: linear-gradient(180deg, var(--bg2) 0%, transparent 100%);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; }
+  .header-brand { font-family: var(--font-display); font-size: 20px; color: var(--accent2); }
+  .header-store { font-size: 11px; color: var(--text3); letter-spacing: 1px; margin-top: 2px; }
+  .header-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .status-bar {
+    display: flex; gap: 12px; margin-top: 14px;
+  }
+  .status-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 0 20px; animation: fadeUp 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--text);
+    margin: 4px 0 16px;
+    font-style: italic;
+  }
+  .section-sub { font-size: 13px; color: var(--text3); margin-bottom: 20px; margin-top: -12px; }
+
+  /* ── DASHBOARD CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .stat-label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 500; color: var(--text); }
+  .stat-change { font-size: 11px; color: var(--success); margin-top: 4px; }
+  .stat-change.down { color: var(--danger); }
+
+  /* ── QUICK ACTIONS ── */
+  .quick-title { font-size: 12px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin-bottom: 12px; }
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .quick-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .quick-btn:active { border-color: var(--accent); background: var(--surface2); }
+  .quick-icon { font-size: 22px; }
+  .quick-label { font-size: 13px; color: var(--text); font-weight: 500; }
+  .quick-desc { font-size: 11px; color: var(--text3); }
+
+  /* ── RECENT ORDERS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .card-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .card-action { font-size: 12px; color: var(--accent); cursor: pointer; }
+
+  .order-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .order-item:last-child { border-bottom: none; }
+  .order-img {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .order-info { flex: 1; }
+  .order-name { font-size: 13px; color: var(--text); }
+  .order-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .order-price { font-size: 13px; font-weight: 500; color: var(--accent2); }
+  .badge {
+    display: inline-block;
+    padding: 3px 8px; border-radius: 20px;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .badge-success { background: rgba(110,198,160,0.15); color: var(--success); }
+  .badge-warning { background: rgba(232,196,122,0.15); color: var(--warning); }
+  .badge-danger { background: rgba(232,112,112,0.15); color: var(--danger); }
+  .badge-info { background: rgba(232,100,122,0.15); color: var(--accent2); }
+
+  /* ── PRODUCT UPLOAD PAGE ── */
+  .upload-zone {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .upload-zone:active { border-color: var(--accent); background: var(--surface); }
+  .upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-text { font-size: 14px; color: var(--text2); }
+  .upload-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  .photo-preview {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;
+  }
+  .photo-thumb {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface2);
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-thumb .remove-btn {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(0,0,0,0.6);
+    border: none; border-radius: 50%;
+    width: 22px; height: 22px;
+    color: white; font-size: 12px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  .desc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .desc-lang {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lang-flag { font-size: 16px; }
+  .lang-name { font-size: 12px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+  .desc-text {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    min-height: 60px;
+    white-space: pre-wrap;
+  }
+  .desc-text.loading { color: var(--text3); font-style: italic; }
+
+  /* ── LOADING SPINNER ── */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ORDERS PAGE ── */
+  .filter-row {
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;
+  }
+  .filter-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px; color: var(--text2);
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .order-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .order-card:active { border-color: var(--accent); }
+  .order-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .order-id { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .order-customer { font-size: 14px; font-weight: 500; color: var(--text); }
+  .order-items-text { font-size: 12px; color: var(--text3); margin-top: 6px; }
+  .order-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .order-amount { font-size: 15px; font-weight: 500; color: var(--accent2); }
+
+  /* ── COMMUNICATION PAGE ── */
+  .msg-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .msg-card.unread { border-color: var(--accent); }
+  .msg-card:active { background: var(--surface2); }
+  .msg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .msg-customer { font-size: 14px; font-weight: 500; color: var(--text); }
+  .msg-time { font-size: 11px; color: var(--text3); }
+  .msg-preview { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .msg-unread-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 4px;
+  }
+
+  .ai-reply-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .ai-reply-label { font-size: 11px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .ai-reply-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .ai-reply-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-sm {
+    padding: 8px 16px; border-radius: 8px;
+    font-family: var(--font-body); font-size: 12px;
+    cursor: pointer; border: 1px solid var(--border2);
+    font-weight: 500; transition: all 0.2s;
+  }
+  .btn-sm-primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-sm-ghost { background: transparent; color: var(--text2); }
+  .btn-sm:active { transform: scale(0.97); }
+
+  /* ── ANALYTICS PAGE ── */
+  .chart-placeholder {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .chart-title { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+  .bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    background: var(--surface2);
+    position: relative; min-width: 0;
+    transition: background 0.2s;
+  }
+  .bar.highlight { background: var(--accent); }
+  .bar-labels { display: flex; gap: 6px; margin-top: 6px; }
+  .bar-label { flex: 1; text-align: center; font-size: 9px; color: var(--text3); min-width: 0; overflow: hidden; }
+
+  .top-products { }
+  .top-product-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .top-product-item:last-child { border-bottom: none; }
+  .top-rank { font-size: 14px; font-weight: 500; color: var(--text3); width: 20px; }
+  .top-name { flex: 1; font-size: 13px; color: var(--text); }
+  .top-sales { font-size: 13px; color: var(--accent2); font-weight: 500; }
+
+  /* ── MARKETING PAGE ── */
+  .caption-result {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .caption-tab {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .cap-tab-btn {
+    flex: 1; padding: 10px;
+    background: none; border: none;
+    font-family: var(--font-body);
+    font-size: 12px; color: var(--text3);
+    cursor: pointer; letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+  .cap-tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .caption-body { padding: 14px; font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: rgba(26, 9, 30, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 20px;
+    z-index: 200;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: none; border: none; cursor: pointer;
+    padding: 6px 4px;
+    transition: opacity 0.2s;
+  }
+  .nav-icon { font-size: 20px; line-height: 1; }
+  .nav-label { font-size: 9px; color: var(--text3); letter-spacing: 0.5px; font-family: var(--font-body); }
+  .nav-btn.active .nav-label { color: var(--accent); }
+  .nav-btn.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(10,5,15,0.85);
+    display: none; align-items: flex-end;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border-top: 1px solid var(--border2);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--surface2); margin: 0 auto 20px;
+  }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 20px; color: var(--text); margin-bottom: 16px;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 0; }
+
+  /* ── SETTINGS PAGE ── */
+  .settings-group { margin-bottom: 20px; }
+  .settings-group-title {
+    font-size: 11px; letter-spacing: 2px; color: var(--text3);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .setting-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .setting-label { font-size: 14px; color: var(--text); }
+  .setting-value { font-size: 13px; color: var(--text3); }
+  .setting-arrow { font-size: 16px; color: var(--text3); }
+
+  select.input-field { appearance: none; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="berry">🍓</div>
+  <div class="logo-text">Dalgi26</div>
+  <div class="logo-sub">Command Center</div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div>
+    <div class="logo-text" style="font-family:'Playfair Display',serif;font-size:28px;color:#f4a0b0;margin-bottom:8px;">Welcome 🍓</div>
+    <div class="setup-title">Let's connect your Imweb store</div>
+  </div>
+  <div class="setup-sub">Enter your Imweb API key to get started. You can find it in your Imweb admin panel under 환경설정 → 외부 서비스 연동 → Rest API V2.</div>
+  <div class="input-group">
+    <div class="input-label">Imweb API Key</div>
+    <input class="input-field" type="password" id="api-key-input" placeholder="Paste your API key here" autocomplete="off">
+  </div>
+  <div class="input-group">
+    <div class="input-label">Store Name</div>
+    <input class="input-field" type="text" id="store-name-input" placeholder="e.g. Dalgi26 Ställe" value="Dalgi26 Ställe">
+  </div>
+  <div class="input-group">
+    <div class="input-label">Default Currency</div>
+    <select class="input-field" id="currency-input">
+      <option value="KRW">KRW — Korean Won ₩</option>
+      <option value="USD">USD — US Dollar $</option>
+      <option value="JPY">JPY — Japanese Yen ¥</option>
+      <option value="EUR">EUR — Euro €</option>
+    </select>
+  </div>
+  <button class="btn-primary" onclick="startApp()">Connect My Store →</button>
+  <div style="text-align:center;font-size:12px;color:var(--text3);">Your API key is stored only on this device</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-brand">🍓 Dalgi26</div>
+        <div class="header-store" id="header-store-name">Command Center</div>
+      </div>
+      <div class="header-avatar" onclick="showPage('settings')">⚙️</div>
+    </div>
+    <div class="status-bar">
+      <div class="status-pill"><div class="status-dot"></div> Store Live</div>
+      <div class="status-pill" id="header-currency">₩ KRW</div>
+      <div class="status-pill">API Connected</div>
+    </div>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div class="page active" id="page-home">
+    <div style="height:12px;"></div>
+    <div class="section-title">Good day ✨</div>
+    <div class="section-sub">Here's your store at a glance</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-value" id="stat-revenue">₩0</div>
+        <div class="stat-change" id="stat-revenue-change">— no data yet</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">New Orders</div>
+        <div class="stat-value" id="stat-orders">0</div>
+        <div class="stat-change">Waiting for API</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Products</div>
+        <div class="stat-value" id="stat-products">0</div>
+        <div class="stat-change">Listed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unread Msgs</div>
+        <div class="stat-value" style="color:var(--accent)">3</div>
+        <div class="stat-change" style="color:var(--warning)">⚠ Reply soon</div>
+      </div>
+    </div>
+
+    <div class="quick-title">Quick Actions</div>
+    <div class="quick-grid">
+      <div class="quick-btn" onclick="showPage('upload')">
+        <div class="quick-icon">📸</div>
+        <div class="quick-label">Upload Product</div>
+        <div class="quick-desc">Photo → Descriptions → Live</div>
+      </div>
+      <div class="quick-btn" onclick="showPage('orders')">
+        <div class="quick-icon">📦</div>
+        <div class="quick-label">View Orders</div>
+        <div class="quick-desc">Track & update shipping</div>
+      </div>
+      <div class="quick-btn" onclick="showPage('comms')">
+        <div class="quick-icon">💬</div>
+        <div class="quick-label">Messages</div>
+        <div class="quick-desc">3 unread from customers</div>
+      </div>
+      <div class="quick-btn" onclick="showPage('marketing')">
+        <div class="quick-icon">✨</div>
+        <div class="quick-label">Create Caption</div>
+        <div class="quick-desc">SNS content in 3 languages</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Recent Orders</div>
+        <div class="card-action" onclick="showPage('orders')">See all →</div>
+      </div>
+      <div class="order-item">
+        <div class="order-img">🧦</div>
+        <div class="order-info">
+          <div class="order-name">Kim Soyeon</div>
+          <div class="order-meta">Order #4821 · 2 items</div>
+        </div>
+        <div style="text-align:right">
+          <div class="order-price">₩28,000</div>
+          <div class="badge badge-success" style="margin-top:4px">Shipped</div>
+        </div>
+      </div>
+      <div class="order-item">
+        <div class="order-img">👜</div>
+        <div class="order-info">
+          <div class="order-name">Tanaka Yuki</div>
+          <div class="order-meta">Order #4820 · 1 item</div>
+        </div>
+        <div style="text-align:right">
+          <div class="order-price">₩45,000</div>
+          <div class="badge badge-warning" style="margin-top:4px">Processing</div>
+        </div>
+      </div>
+      <div class="order-item">
+        <div class="order-img">🎀</div>
+        <div class="order-info">
+          <div class="order-name">Sarah Chen</div>
+          <div class="order-meta">Order #4819 · 3 items</div>
+        </div>
+        <div style="text-align:right">
+          <div class="order-price">₩72,000</div>
+          <div class="badge badge-info" style="margin-top:4px">New</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Page -->
+  <div class="page" id="page-upload">
+    <div style="height:12px;"></div>
+    <div class="section-title">Upload Product</div>
+    <div class="section-sub">Add photos → AI writes descriptions → upload to your store</div>
+
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input" accept="image/*" multiple onchange="handlePhotos(event)" style="display:none">
+      <div class="upload-icon">📷</div>
+      <div class="upload-text">Tap to add product photos</div>
+      <div class="upload-sub">You can select multiple photos at once</div>
+    </div>
+
+    <div class="photo-preview" id="photo-preview"></div>
+
+    <div class="input-group" style="margin-bottom:12px">
+      <div class="input-label">Product Name (English)</div>
+      <input class="input-field" id="product-name" type="text" placeholder="e.g. Strawberry Embroidered Tote Bag">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="input-group">
+        <div class="input-label">Price (₩)</div>
+        <input class="input-field" id="product-price" type="number" placeholder="35000">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Stock</div>
+        <input class="input-field" id="product-stock" type="number" placeholder="50">
+      </div>
+    </div>
+    <div class="input-group" style="margin-bottom:16px">
+      <div class="input-label">Category</div>
+      <select class="input-field" id="product-category">
+        <option>Accessories</option>
+        <option>Clothing</option>
+        <option>Food & Beverage</option>
+        <option>Home & Living</option>
+        <option>Beauty</option>
+        <option>Stationery</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" onclick="generateDescriptions()" id="gen-btn">✨ Generate Descriptions with AI</button>
+
+    <div id="descriptions-section" style="display:none;margin-top:16px">
+      <div class="quick-title" style="margin-bottom:10px">AI-Generated Descriptions</div>
+      <div class="desc-card" id="desc-ko">
+        <div class="desc-lang"><span class="lang-flag">🇰🇷</span><span class="lang-name">Korean</span></div>
+        <div class="desc-text loading" id="desc-ko-text">Generating...</div>
+      </div>
+      <div class="desc-card" id="desc-en">
+        <div class="desc-lang"><span class="lang-flag">🇺🇸</span><span class="lang-name">English</span></div>
+        <div class="desc-text loading" id="desc-en-text">Generating...</div>
+      </div>
+      <div class="desc-card" id="desc-ja">
+        <div class="desc-lang"><span class="lang-flag">🇯🇵</span><span class="lang-name">Japanese</span></div>
+        <div class="desc-text loading" id="desc-ja-text">Generating...</div>
+      </div>
+      <button class="btn-primary" id="upload-btn" style="margin-top:16px;display:none" onclick="uploadProduct()">🚀 Upload to Imweb Store</button>
+    </div>
+  </div>
+
+  <!-- Orders Page -->
+  <div class="page" id="page-orders">
+    <div style="height:12px;"></div>
+    <div class="section-title">Orders</div>
+    <div class="filter-row">
+      <div class="filter-chip active" onclick="filterOrders(this,'all')">All</div>
+      <div class="filter-chip" onclick="filterOrders(this,'new')">New</div>
+      <div class="filter-chip" onclick="filterOrders(this,'processing')">Processing</div>
+      <div class="filter-chip" onclick="filterOrders(this,'shipped')">Shipped</div>
+      <div class="filter-chip" onclick="filterOrders(this,'delivered')">Delivered</div>
+    </div>
+
+    <div id="orders-list">
+      <div class="order-card" onclick="openOrderModal(1)">
+        <div class="order-id">#4821 · Mar 28, 2026</div>
+        <div class="order-row">
+          <div class="order-customer">Kim Soyeon</div>
+          <div class="badge badge-success">Shipped</div>
+        </div>
+        <div class="order-items-text">Strawberry Tote Bag × 1, Hair Clip Set × 1</div>
+        <div class="order-footer">
+          <div class="order-amount">₩28,000</div>
+          <div style="font-size:12px;color:var(--text3)">Seoul, Korea</div>
+        </div>
+      </div>
+      <div class="order-card" onclick="openOrderModal(2)">
+        <div class="order-id">#4820 · Mar 28, 2026</div>
+        <div class="order-row">
+          <div class="order-customer">Tanaka Yuki</div>
+          <div class="badge badge-warning">Processing</div>
+        </div>
+        <div class="order-items-text">Embroidered Pouch × 1</div>
+        <div class="order-footer">
+          <div class="order-amount">₩45,000</div>
+          <div style="font-size:12px;color:var(--text3)">Tokyo, Japan</div>
+        </div>
+      </div>
+      <div class="order-card" onclick="openOrderModal(3)">
+        <div class="order-id">#4819 · Mar 27, 2026</div>
+        <div class="order-row">
+          <div class="order-customer">Sarah Chen</div>
+          <div class="badge badge-info">New</div>
+        </div>
+        <div class="order-items-text">Dalgi Earrings × 2, Mini Bag × 1</div>
+        <div class="order-footer">
+          <div class="order-amount">₩72,000</div>
+          <div style="font-size:12px;color:var(--text3)">Singapore</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Communications Page -->
+  <div class="page" id="page-comms">
+    <div style="height:12px;"></div>
+    <div class="section-title">Messages</div>
+    <div class="section-sub">AI drafts replies — you approve & send</div>
+
+    <div class="msg-card unread" onclick="openMsgModal(1)">
+      <div class="msg-header">
+        <div class="msg-customer">Kim Soyeon</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="msg-time">2h ago</div>
+          <div class="msg-unread-dot"></div>
+        </div>
+      </div>
+      <div class="msg-preview">안녕하세요! 배송은 보통 얼마나 걸리나요? 선물용으로 구매하려고 하는데...</div>
+    </div>
+    <div class="msg-card unread" onclick="openMsgModal(2)">
+      <div class="msg-header">
+        <div class="msg-customer">Tanaka Yuki</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="msg-time">5h ago</div>
+          <div class="msg-unread-dot"></div>
+        </div>
+      </div>
+      <div class="msg-preview">こんにちは！商品のサイズについて教えていただけますか？</div>
+    </div>
+    <div class="msg-card unread" onclick="openMsgModal(3)">
+      <div class="msg-header">
+        <div class="msg-customer">Sarah Chen</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="msg-time">Yesterday</div>
+          <div class="msg-unread-dot"></div>
+        </div>
+      </div>
+      <div class="msg-preview">Hi! Do you offer international shipping to Singapore? And what's the return policy?</div>
+    </div>
+    <div class="msg-card" onclick="openMsgModal(4)">
+      <div class="msg-header">
+        <div class="msg-customer">Park Jimin</div>
+        <div class="msg-time">2 days ago</div>
+      </div>
+      <div class="msg-preview">감사합니다! 상품 잘 받았어요 너무 예뻐요 ❤️</div>
+    </div>
+  </div>
+
+  <!-- Analytics Page -->
+  <div class="page" id="page-analytics">
+    <div style="height:12px;"></div>
+    <div class="section-title">Analytics</div>
+    <div class="section-sub">Your store performance this week</div>
+
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card">
+        <div class="stat-label">Weekly Revenue</div>
+        <div class="stat-value">₩340K</div>
+        <div class="stat-change">↑ 12% vs last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Orders</div>
+        <div class="stat-value">24</div>
+        <div class="stat-change">↑ 3 more</div>
+      </div>
+    </div>
+
+    <div class="chart-placeholder">
+      <div class="chart-title">Daily Sales — This Week</div>
+      <div class="bar-chart" id="sales-chart"></div>
+      <div class="bar-labels" id="sales-labels"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏆 Top Products</div>
+      </div>
+      <div style="padding:4px 16px 4px">
+        <div class="top-product-item">
+          <div class="top-rank">1</div>
+          <div class="top-name">Strawberry Tote Bag</div>
+          <div class="top-sales">42 sold</div>
+        </div>
+        <div class="top-product-item">
+          <div class="top-rank">2</div>
+          <div class="top-name">Dalgi Hair Clip Set</div>
+          <div class="top-sales">38 sold</div>
+        </div>
+        <div class="top-product-item">
+          <div class="top-rank">3</div>
+          <div class="top-name">Mini Embroidered Pouch</div>
+          <div class="top-sales">29 sold</div>
+        </div>
+        <div class="top-product-item">
+          <div class="top-rank">4</div>
+          <div class="top-name">Strawberry Earrings</div>
+          <div class="top-sales">21 sold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marketing Page -->
+  <div class="page" id="page-marketing">
+    <div style="height:12px;"></div>
+    <div class="section-title">Marketing</div>
+    <div class="section-sub">Generate SNS captions and promotions with AI</div>
+
+    <div class="input-group" style="margin-bottom:12px">
+      <div class="input-label">Product Name</div>
+      <input class="input-field" id="mkt-product" type="text" placeholder="e.g. Strawberry Tote Bag">
+    </div>
+    <div class="input-group" style="margin-bottom:12px">
+      <div class="input-label">Platform</div>
+      <select class="input-field" id="mkt-platform">
+        <option>Instagram</option>
+        <option>KakaoTalk Channel</option>
+        <option>General / Both</option>
+      </select>
+    </div>
+    <div class="input-group" style="margin-bottom:16px">
+      <div class="input-label">Tone</div>
+      <select class="input-field" id="mkt-tone">
+        <option>Cute & Playful</option>
+        <option>Elegant & Minimal</option>
+        <option>Casual & Friendly</option>
+        <option>Bold & Promotional</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="generateCaption()">✨ Generate Caption</button>
+
+    <div id="caption-result" style="display:none;margin-top:16px">
+      <div class="caption-result">
+        <div class="caption-tab">
+          <button class="cap-tab-btn active" onclick="switchCapTab(this,'ko')">🇰🇷 Korean</button>
+          <button class="cap-tab-btn" onclick="switchCapTab(this,'en')">🇺🇸 English</button>
+          <button class="cap-tab-btn" onclick="switchCapTab(this,'ja')">🇯🇵 Japanese</button>
+        </div>
+        <div class="caption-body" id="caption-text">Loading...</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-sm btn-sm-primary" style="flex:1" onclick="copyCaption()">Copy Caption</button>
+        <button class="btn-sm btn-sm-ghost" style="flex:1" onclick="generateCaption()">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Page -->
+  <div class="page" id="page-settings">
+    <div style="height:12px;"></div>
+    <div class="section-title">Settings</div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Store</div>
+      <div class="setting-row">
+        <div class="setting-label">Store Name</div>
+        <div class="setting-value" id="setting-store-name">Dalgi26 Ställe</div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">Currency</div>
+        <div class="setting-value" id="setting-currency">KRW</div>
+      </div>
+      <div class="setting-row" onclick="resetApp()" style="cursor:pointer">
+        <div class="setting-label">API Key</div>
+        <div class="setting-value">••••••••••••</div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">AI Descriptions</div>
+      <div class="setting-row">
+        <div class="setting-label">Default Tone</div>
+        <div class="setting-value">Cute & Friendly</div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">Languages</div>
+        <div class="setting-value">KO · EN · JA</div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Notifications</div>
+      <div class="setting-row">
+        <div class="setting-label">New Orders</div>
+        <div class="setting-value">On</div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">Customer Messages</div>
+        <div class="setting-value">On</div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">Low Stock Alert</div>
+        <div class="setting-value">At 5 items</div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Account</div>
+      <div class="setting-row" onclick="resetApp()" style="cursor:pointer">
+        <div class="setting-label" style="color:var(--danger)">Reset & Disconnect Store</div>
+        <div class="setting-arrow">→</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="showPage('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">HOME</div>
+    </button>
+    <button class="nav-btn" id="nav-upload" onclick="showPage('upload')">
+      <div class="nav-icon">📸</div>
+      <div class="nav-label">UPLOAD</div>
+    </button>
+    <button class="nav-btn" id="nav-orders" onclick="showPage('orders')">
+      <div class="nav-icon">📦</div>
+      <div class="nav-label">ORDERS</div>
+    </button>
+    <button class="nav-btn" id="nav-comms" onclick="showPage('comms')">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">MESSAGES</div>
+    </button>
+    <button class="nav-btn" id="nav-analytics" onclick="showPage('analytics')">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">STATS</div>
+    </button>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="order-modal" onclick="closeModal('order-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-order-title">Order Details</div>
+    <div id="modal-order-body"></div>
+    <div style="display:flex;gap:8px;margin-top:20px">
+      <button class="btn-sm btn-sm-primary" style="flex:1" onclick="markShipped()">Mark as Shipped</button>
+      <button class="btn-sm btn-sm-ghost" style="flex:1" onclick="closeModal('order-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div class="modal-overlay" id="msg-modal" onclick="closeModal('msg-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-msg-customer">Customer Message</div>
+    <div id="modal-msg-original" style="background:var(--surface);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;"></div>
+    <div class="ai-reply-box">
+      <div class="ai-reply-label">✨ AI Suggested Reply</div>
+      <div class="ai-reply-text" id="modal-ai-reply">Generating reply...</div>
+      <div class="ai-reply-actions">
+        <button class="btn-sm btn-sm-primary" onclick="sendReply()">Send Reply</button>
+        <button class="btn-sm btn-sm-ghost" onclick="generateAiReply()">Regenerate</button>
+        <button class="btn-sm btn-sm-ghost" onclick="closeModal('msg-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Toast -->
+<div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--success);color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;"></div>
+
+<script>
+// ── STATE ──
+let currentPage = 'home';
+let photos = [];
+let captionData = { ko: '', en: '', ja: '' };
+let currentCapLang = 'ko';
+let currentMsgId = 0;
+
+const MSGS = [
+  { id:1, customer:'Kim Soyeon', lang:'Korean', original:'안녕하세요! 배송은 보통 얼마나 걸리나요? 선물용으로 구매하려고 하는데 다음 주 금요일까지 받을 수 있을까요?', reply:'안녕하세요 김소연님! 문의해주셔서 감사합니다 🍓\n\n국내 배송은 보통 1~3 영업일이 소요됩니다. 다음 주 금요일까지 충분히 수령하실 수 있을 것 같아요!\n\n선물용으로 구매하시나요? 요청하시면 선물 포장도 해드릴 수 있어요 🎀\n\n좋은 하루 보내세요!' },
+  { id:2, customer:'Tanaka Yuki', lang:'Japanese', original:'こんにちは！商品のサイズについて教えていただけますか？バッグの縦横のサイズを知りたいです。', reply:'こんにちは、田中様！お問い合わせありがとうございます 🍓\n\nバッグのサイズについて：\n・縦：28cm\n・横：32cm\n・マチ：10cm\n\nA4サイズも入る大きさで、普段使いにぴったりです。\n他にご質問があればお気軽にどうぞ！' },
+  { id:3, customer:'Sarah Chen', lang:'English', original:'Hi! Do you offer international shipping to Singapore? And what\'s the return policy?', reply:'Hi Sarah! Thank you for your interest in Dalgi26 🍓\n\nGreat news — we do ship to Singapore! International shipping usually takes 7–14 business days, and the shipping fee is calculated at checkout.\n\nFor returns, we accept them within 14 days of delivery for items in original condition. Just reach out to us and we\'ll guide you through the process!\n\nFeel free to ask if you have any other questions 😊' },
+  { id:4, customer:'Park Jimin', lang:'Korean', original:'감사합니다! 상품 잘 받았어요 너무 예뻐요 ❤️', reply:'감사합니다 박지민님! 마음에 드신다니 정말 기쁘네요 🍓❤️\n\n소중한 리뷰 남겨주시면 더욱 감사하겠습니다.\n또 방문해 주세요!' }
+];
+
+// ── SPLASH ──
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+      const saved = localStorage.getItem('dalgi26_api');
+      if (saved) {
+        launchApp(JSON.parse(saved));
+      } else {
+        document.getElementById('setup-screen').classList.add('active');
+      }
+    }, 600);
+  }, 1800);
+});
+
+// ── SETUP ──
+function startApp() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const name = document.getElementById('store-name-input').value.trim() || 'Dalgi26 Ställe';
+  const currency = document.getElementById('currency-input').value;
+  if (!key) { showToast('Please enter your API key'); return; }
+  const data = { key, name, currency };
+  localStorage.setItem('dalgi26_api', JSON.stringify(data));
+  launchApp(data);
+}
+
+function launchApp(data) {
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  document.getElementById('header-store-name').textContent = data.name || 'Command Center';
+  document.getElementById('setting-store-name').textContent = data.name || 'Dalgi26 Ställe';
+  document.getElementById('setting-currency').textContent = data.currency || 'KRW';
+  const sym = {KRW:'₩',USD:'$',JPY:'¥',EUR:'€'}[data.currency]||'₩';
+  document.getElementById('header-currency').textContent = sym + ' ' + (data.currency||'KRW');
+  document.getElementById('stat-revenue').textContent = sym + '0';
+  buildChart();
+}
+
+function resetApp() {
+  if (confirm('Disconnect store and reset?')) {
+    localStorage.removeItem('dalgi26_api');
+    location.reload();
+  }
+}
+
+// ── NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  currentPage = name;
+  window.scrollTo(0,0);
+}
+
+// ── PHOTO UPLOAD ──
+function handlePhotos(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const url = URL.createObjectURL(file);
+    photos.push({ file, url });
+  });
+  renderPhotoPreview();
+}
+
+function renderPhotoPreview() {
+  const container = document.getElementById('photo-preview');
+  container.innerHTML = '';
+  photos.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = `<img src="${p.url}"><button class="remove-btn" onclick="removePhoto(${i})">×</button>`;
+    container.appendChild(div);
+  });
+  if (photos.length > 0) {
+    document.getElementById('upload-zone').style.borderStyle = 'solid';
+    document.getElementById('upload-zone').style.borderColor = 'var(--accent)';
+  }
+}
+
+function removePhoto(i) {
+  photos.splice(i,1);
+  renderPhotoPreview();
+  if (photos.length === 0) {
+    document.getElementById('upload-zone').style.borderStyle = 'dashed';
+    document.getElementById('upload-zone').style.borderColor = 'var(--border2)';
+  }
+}
+
+// ── AI DESCRIPTION GENERATION ──
+async function generateDescriptions() {
+  const name = document.getElementById('product-name').value.trim();
+  if (!name) { showToast('Please enter a product name'); return; }
+  const category = document.getElementById('product-category').value;
+  const btn = document.getElementById('gen-btn');
+  btn.textContent = '⏳ Generating...';
+  btn.disabled = true;
+  document.getElementById('descriptions-section').style.display = 'block';
+  ['ko','en','ja'].forEach(lang => {
+    document.getElementById('desc-'+lang+'-text').textContent = 'Generating...';
+    document.getElementById('desc-'+lang+'-text').className = 'desc-text loading';
+  });
+  document.getElementById('upload-btn').style.display = 'none';
+
+  const prompt = `You are a product copywriter for a cute Korean brand called "Dalgi26 Ställe" (달기26 스텔레). The brand features strawberry motifs, cats, and a soft feminine aesthetic.
+
+Write product descriptions for: "${name}" (Category: ${category})
+
+Return ONLY a JSON object with exactly these keys: "korean", "english", "japanese"
+Each description should be 2-3 sentences, warm and appealing, matching the brand's cute aesthetic.
+No markdown, no extra text, just the JSON.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(c => c.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    ['ko','en','ja'].forEach(lang => {
+      const key = {ko:'korean',en:'english',ja:'japanese'}[lang];
+      const el = document.getElementById('desc-'+lang+'-text');
+      el.textContent = parsed[key] || 'Description unavailable';
+      el.className = 'desc-text';
+    });
+    document.getElementById('upload-btn').style.display = 'block';
+  } catch(err) {
+    ['ko','en','ja'].forEach(lang => {
+      const el = document.getElementById('desc-'+lang+'-text');
+      el.textContent = 'Generation failed. Please check your connection and try again.';
+      el.className = 'desc-text';
+    });
+  }
+  btn.textContent = '✨ Generate Descriptions with AI';
+  btn.disabled = false;
+}
+
+// ── UPLOAD PRODUCT ──
+async function uploadProduct() {
+  const saved = localStorage.getItem('dalgi26_api');
+  if (!saved) { showToast('No API key found'); return; }
+  const { key } = JSON.parse(saved);
+  const btn = document.getElementById('upload-btn');
+  btn.textContent = '⏳ Uploading...';
+  btn.disabled = true;
+
+  const productName = document.getElementById('product-name').value.trim();
+  const price = document.getElementById('product-price').value;
+  const stock = document.getElementById('product-stock').value;
+  const koDesc = document.getElementById('desc-ko-text').textContent;
+
+  try {
+    const res = await fetch('https://openapi.imweb.me/v2/product', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': key,
+        'api-version': '2.0'
+      },
+      body: JSON.stringify({
+        name: productName,
+        price: parseInt(price) || 0,
+        stock: parseInt(stock) || 0,
+        content: koDesc,
+        status: 'sale'
+      })
+    });
+    if (res.ok) {
+      showToast('✅ Product uploaded successfully!');
+      document.getElementById('product-name').value = '';
+      document.getElementById('product-price').value = '';
+      document.getElementById('product-stock').value = '';
+      photos = [];
+      renderPhotoPreview();
+      document.getElementById('descriptions-section').style.display = 'none';
+      document.getElementById('upload-zone').style.borderStyle = 'dashed';
+    } else {
+      const err = await res.json();
+      showToast('Upload failed: ' + (err.message || res.status));
+    }
+  } catch(e) {
+    showToast('⚠️ Could not connect to Imweb. Check API key.');
+  }
+  btn.textContent = '🚀 Upload to Imweb Store';
+  btn.disabled = false;
+}
+
+// ── ORDERS ──
+function filterOrders(el, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function openOrderModal(id) {
+  const orders = {
+    1: { title:'Order #4821 — Kim Soyeon', body:`<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)"><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Customer</span><span>Kim Soyeon</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Status</span><span style="color:var(--success)">Shipped ✓</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Items</span><span>Strawberry Tote + Hair Clip</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Total</span><span style="color:var(--accent2)">₩28,000</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Address</span><span>Seoul, Korea</span></div></div>` },
+    2: { title:'Order #4820 — Tanaka Yuki', body:`<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)"><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Customer</span><span>Tanaka Yuki</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Status</span><span style="color:var(--warning)">Processing</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Items</span><span>Embroidered Pouch × 1</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Total</span><span style="color:var(--accent2)">₩45,000</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Address</span><span>Tokyo, Japan</span></div></div>` },
+    3: { title:'Order #4819 — Sarah Chen', body:`<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)"><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Customer</span><span>Sarah Chen</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Status</span><span style="color:var(--accent2)">New</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Items</span><span>Earrings × 2, Mini Bag × 1</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Total</span><span style="color:var(--accent2)">₩72,000</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Address</span><span>Singapore</span></div></div>` }
+  };
+  const o = orders[id];
+  document.getElementById('modal-order-title').textContent = o.title;
+  document.getElementById('modal-order-body').innerHTML = o.body;
+  document.getElementById('order-modal').classList.add('active');
+}
+
+function markShipped() {
+  showToast('✅ Order marked as shipped!');
+  closeModal('order-modal');
+}
+
+// ── MESSAGES ──
+function openMsgModal(id) {
+  currentMsgId = id;
+  const msg = MSGS.find(m => m.id === id);
+  document.getElementById('modal-msg-customer').textContent = msg.customer;
+  document.getElementById('modal-msg-original').textContent = msg.original;
+  document.getElementById('modal-ai-reply').textContent = 'Generating AI reply...';
+  document.getElementById('msg-modal').classList.add('active');
+  setTimeout(() => {
+    document.getElementById('modal-ai-reply').textContent = msg.reply;
+  }, 1200);
+}
+
+function generateAiReply() {
+  const msg = MSGS.find(m => m.id === currentMsgId);
+  document.getElementById('modal-ai-reply').textContent = 'Regenerating...';
+  setTimeout(() => {
+    document.getElementById('modal-ai-reply').textContent = msg.reply;
+  }, 900);
+}
+
+function sendReply() {
+  showToast('✅ Reply sent!');
+  closeModal('msg-modal');
+}
+
+// ── MARKETING / CAPTIONS ──
+async function generateCaption() {
+  const product = document.getElementById('mkt-product').value.trim();
+  if (!product) { showToast('Please enter a product name'); return; }
+  const platform = document.getElementById('mkt-platform').value;
+  const tone = document.getElementById('mkt-tone').value;
+
+  document.getElementById('caption-result').style.display = 'block';
+  document.getElementById('caption-text').textContent = 'Generating...';
+
+  const prompt = `Write ${platform} captions for a product called "${product}" from the Korean brand "Dalgi26 Ställe" (strawberry & cat aesthetic, cute feminine brand). Tone: ${tone}.
+
+Return ONLY a JSON with keys "korean", "english", "japanese". Each caption should include relevant hashtags for ${platform}. No markdown, no preamble, just the JSON.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    captionData = JSON.parse(clean);
+    currentCapLang = 'ko';
+    document.querySelectorAll('.cap-tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+    document.getElementById('caption-text').textContent = captionData.korean;
+  } catch(e) {
+    document.getElementById('caption-text').textContent = 'Generation failed. Please try again.';
+  }
+}
+
+function switchCapTab(el, lang) {
+  document.querySelectorAll('.cap-tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  currentCapLang = lang;
+  const map = {ko:'korean',en:'english',ja:'japanese'};
+  document.getElementById('caption-text').textContent = captionData[map[lang]] || 'Generate a caption first';
+}
+
+function copyCaption() {
+  const text = document.getElementById('caption-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied to clipboard!')).catch(()=>showToast('Copy failed'));
+}
+
+// ── CHART ──
+function buildChart() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const values = [45,72,38,91,64,110,88];
+  const max = Math.max(...values);
+  const chart = document.getElementById('sales-chart');
+  const labels = document.getElementById('sales-labels');
+  if (!chart) return;
+  chart.innerHTML = '';
+  labels.innerHTML = '';
+  values.forEach((v,i) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i===5?' highlight':'');
+    bar.style.height = Math.round((v/max)*100)+'%';
+    chart.appendChild(bar);
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = days[i];
+    labels.appendChild(lbl);
+  });
+}
+
+// ── MODAL ──
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(()=>{ t.style.opacity='0'; },2500);
+}
+</script>
+</body>
+</html>
