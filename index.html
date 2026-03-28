@@ -547,10 +547,15 @@
     <div class="logo-text" style="font-family:'Playfair Display',serif;font-size:28px;color:#f4a0b0;margin-bottom:8px;">Welcome 🍓</div>
     <div class="setup-title">Let's connect your Imweb store</div>
   </div>
-  <div class="setup-sub">Enter your Imweb API key to get started. You can find it in your Imweb admin panel under 환경설정 → 외부 서비스 연동 → Rest API V2.</div>
+  <div class="setup-sub">Enter your keys to connect your store and enable AI features. Everything is stored only on this device — never shared.</div>
   <div class="input-group">
     <div class="input-label">Imweb API Key</div>
-    <input class="input-field" type="password" id="api-key-input" placeholder="Paste your API key here" autocomplete="off">
+    <input class="input-field" type="password" id="api-key-input" placeholder="From 환경설정 → 외부 서비스 연동 → Rest API V2" autocomplete="off">
+  </div>
+  <div class="input-group">
+    <div class="input-label">Anthropic API Key (for AI descriptions)</div>
+    <input class="input-field" type="password" id="anthropic-key-input" placeholder="sk-ant-..." autocomplete="off">
+    <div style="font-size:11px;color:var(--text3);margin-top:4px;">Get it at console.anthropic.com → API Keys</div>
   </div>
   <div class="input-group">
     <div class="input-label">Store Name</div>
@@ -566,7 +571,7 @@
     </select>
   </div>
   <button class="btn-primary" onclick="startApp()">Connect My Store →</button>
-  <div style="text-align:center;font-size:12px;color:var(--text3);">Your API key is stored only on this device</div>
+  <div style="text-align:center;font-size:12px;color:var(--text3);">Your keys are stored only on this device</div>
 </div>
 
 <!-- MAIN APP -->
@@ -611,8 +616,8 @@
       </div>
       <div class="stat-card">
         <div class="stat-label">Unread Msgs</div>
-        <div class="stat-value" style="color:var(--accent)">3</div>
-        <div class="stat-change" style="color:var(--warning)">⚠ Reply soon</div>
+        <div class="stat-value" id="stat-msgs">0</div>
+        <div class="stat-change">No new messages</div>
       </div>
     </div>
 
@@ -631,7 +636,7 @@
       <div class="quick-btn" onclick="showPage('comms')">
         <div class="quick-icon">💬</div>
         <div class="quick-label">Messages</div>
-        <div class="quick-desc">3 unread from customers</div>
+        <div class="quick-desc">View customer messages</div>
       </div>
       <div class="quick-btn" onclick="showPage('marketing')">
         <div class="quick-icon">✨</div>
@@ -645,38 +650,10 @@
         <div class="card-title">Recent Orders</div>
         <div class="card-action" onclick="showPage('orders')">See all →</div>
       </div>
-      <div class="order-item">
-        <div class="order-img">🧦</div>
-        <div class="order-info">
-          <div class="order-name">Kim Soyeon</div>
-          <div class="order-meta">Order #4821 · 2 items</div>
-        </div>
-        <div style="text-align:right">
-          <div class="order-price">₩28,000</div>
-          <div class="badge badge-success" style="margin-top:4px">Shipped</div>
-        </div>
-      </div>
-      <div class="order-item">
-        <div class="order-img">👜</div>
-        <div class="order-info">
-          <div class="order-name">Tanaka Yuki</div>
-          <div class="order-meta">Order #4820 · 1 item</div>
-        </div>
-        <div style="text-align:right">
-          <div class="order-price">₩45,000</div>
-          <div class="badge badge-warning" style="margin-top:4px">Processing</div>
-        </div>
-      </div>
-      <div class="order-item">
-        <div class="order-img">🎀</div>
-        <div class="order-info">
-          <div class="order-name">Sarah Chen</div>
-          <div class="order-meta">Order #4819 · 3 items</div>
-        </div>
-        <div style="text-align:right">
-          <div class="order-price">₩72,000</div>
-          <div class="badge badge-info" style="margin-top:4px">New</div>
-        </div>
+      <div style="padding:32px 16px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px">📦</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:4px">No orders yet</div>
+        <div style="font-size:12px;color:var(--text3)">Your first order will appear here</div>
       </div>
     </div>
   </div>
@@ -755,41 +732,10 @@
     </div>
 
     <div id="orders-list">
-      <div class="order-card" onclick="openOrderModal(1)">
-        <div class="order-id">#4821 · Mar 28, 2026</div>
-        <div class="order-row">
-          <div class="order-customer">Kim Soyeon</div>
-          <div class="badge badge-success">Shipped</div>
-        </div>
-        <div class="order-items-text">Strawberry Tote Bag × 1, Hair Clip Set × 1</div>
-        <div class="order-footer">
-          <div class="order-amount">₩28,000</div>
-          <div style="font-size:12px;color:var(--text3)">Seoul, Korea</div>
-        </div>
-      </div>
-      <div class="order-card" onclick="openOrderModal(2)">
-        <div class="order-id">#4820 · Mar 28, 2026</div>
-        <div class="order-row">
-          <div class="order-customer">Tanaka Yuki</div>
-          <div class="badge badge-warning">Processing</div>
-        </div>
-        <div class="order-items-text">Embroidered Pouch × 1</div>
-        <div class="order-footer">
-          <div class="order-amount">₩45,000</div>
-          <div style="font-size:12px;color:var(--text3)">Tokyo, Japan</div>
-        </div>
-      </div>
-      <div class="order-card" onclick="openOrderModal(3)">
-        <div class="order-id">#4819 · Mar 27, 2026</div>
-        <div class="order-row">
-          <div class="order-customer">Sarah Chen</div>
-          <div class="badge badge-info">New</div>
-        </div>
-        <div class="order-items-text">Dalgi Earrings × 2, Mini Bag × 1</div>
-        <div class="order-footer">
-          <div class="order-amount">₩72,000</div>
-          <div style="font-size:12px;color:var(--text3)">Singapore</div>
-        </div>
+      <div style="padding:48px 16px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">📦</div>
+        <div style="font-size:15px;color:var(--text2);margin-bottom:6px">No orders yet</div>
+        <div style="font-size:13px;color:var(--text3)">Once customers start ordering, they'll appear here. Orders will sync automatically from your Imweb store.</div>
       </div>
     </div>
   </div>
@@ -800,42 +746,10 @@
     <div class="section-title">Messages</div>
     <div class="section-sub">AI drafts replies — you approve & send</div>
 
-    <div class="msg-card unread" onclick="openMsgModal(1)">
-      <div class="msg-header">
-        <div class="msg-customer">Kim Soyeon</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="msg-time">2h ago</div>
-          <div class="msg-unread-dot"></div>
-        </div>
-      </div>
-      <div class="msg-preview">안녕하세요! 배송은 보통 얼마나 걸리나요? 선물용으로 구매하려고 하는데...</div>
-    </div>
-    <div class="msg-card unread" onclick="openMsgModal(2)">
-      <div class="msg-header">
-        <div class="msg-customer">Tanaka Yuki</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="msg-time">5h ago</div>
-          <div class="msg-unread-dot"></div>
-        </div>
-      </div>
-      <div class="msg-preview">こんにちは！商品のサイズについて教えていただけますか？</div>
-    </div>
-    <div class="msg-card unread" onclick="openMsgModal(3)">
-      <div class="msg-header">
-        <div class="msg-customer">Sarah Chen</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="msg-time">Yesterday</div>
-          <div class="msg-unread-dot"></div>
-        </div>
-      </div>
-      <div class="msg-preview">Hi! Do you offer international shipping to Singapore? And what's the return policy?</div>
-    </div>
-    <div class="msg-card" onclick="openMsgModal(4)">
-      <div class="msg-header">
-        <div class="msg-customer">Park Jimin</div>
-        <div class="msg-time">2 days ago</div>
-      </div>
-      <div class="msg-preview">감사합니다! 상품 잘 받았어요 너무 예뻐요 ❤️</div>
+    <div style="padding:48px 16px;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">💬</div>
+      <div style="font-size:15px;color:var(--text2);margin-bottom:6px">No messages yet</div>
+      <div style="font-size:13px;color:var(--text3)">Customer messages from your Imweb store will appear here. Set up Channel Talk in your Imweb dashboard to enable live chat.</div>
     </div>
   </div>
 
@@ -848,13 +762,13 @@
     <div class="stats-grid" style="margin-bottom:16px">
       <div class="stat-card">
         <div class="stat-label">Weekly Revenue</div>
-        <div class="stat-value">₩340K</div>
-        <div class="stat-change">↑ 12% vs last week</div>
+        <div class="stat-value">₩0</div>
+        <div class="stat-change">— no data yet</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Orders</div>
-        <div class="stat-value">24</div>
-        <div class="stat-change">↑ 3 more</div>
+        <div class="stat-value">0</div>
+        <div class="stat-change">— no data yet</div>
       </div>
     </div>
 
@@ -868,27 +782,10 @@
       <div class="card-header">
         <div class="card-title">🏆 Top Products</div>
       </div>
-      <div style="padding:4px 16px 4px">
-        <div class="top-product-item">
-          <div class="top-rank">1</div>
-          <div class="top-name">Strawberry Tote Bag</div>
-          <div class="top-sales">42 sold</div>
-        </div>
-        <div class="top-product-item">
-          <div class="top-rank">2</div>
-          <div class="top-name">Dalgi Hair Clip Set</div>
-          <div class="top-sales">38 sold</div>
-        </div>
-        <div class="top-product-item">
-          <div class="top-rank">3</div>
-          <div class="top-name">Mini Embroidered Pouch</div>
-          <div class="top-sales">29 sold</div>
-        </div>
-        <div class="top-product-item">
-          <div class="top-rank">4</div>
-          <div class="top-name">Strawberry Earrings</div>
-          <div class="top-sales">21 sold</div>
-        </div>
+      <div style="padding:32px 16px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px">📊</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:4px">No sales data yet</div>
+        <div style="font-size:12px;color:var(--text3)">Your best sellers will appear here once orders come in</div>
       </div>
     </div>
   </div>
@@ -1089,10 +986,12 @@ window.addEventListener('load', () => {
 // ── SETUP ──
 function startApp() {
   const key = document.getElementById('api-key-input').value.trim();
+  const anthropicKey = document.getElementById('anthropic-key-input').value.trim();
   const name = document.getElementById('store-name-input').value.trim() || 'Dalgi26 Ställe';
   const currency = document.getElementById('currency-input').value;
-  if (!key) { showToast('Please enter your API key'); return; }
-  const data = { key, name, currency };
+  if (!key) { showToast('Please enter your Imweb API key'); return; }
+  if (!anthropicKey) { showToast('Please enter your Anthropic API key'); return; }
+  const data = { key, anthropicKey, name, currency };
   localStorage.setItem('dalgi26_api', JSON.stringify(data));
   launchApp(data);
 }
@@ -1166,6 +1065,10 @@ function removePhoto(i) {
 async function generateDescriptions() {
   const name = document.getElementById('product-name').value.trim();
   if (!name) { showToast('Please enter a product name'); return; }
+  const saved = localStorage.getItem('dalgi26_api');
+  if (!saved) { showToast('Please set up your API keys first'); return; }
+  const { anthropicKey } = JSON.parse(saved);
+  if (!anthropicKey) { showToast('Anthropic API key missing — go to Settings'); return; }
   const category = document.getElementById('product-category').value;
   const btn = document.getElementById('gen-btn');
   btn.textContent = '⏳ Generating...';
@@ -1188,7 +1091,12 @@ No markdown, no extra text, just the JSON.`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
@@ -1196,6 +1104,7 @@ No markdown, no extra text, just the JSON.`;
       })
     });
     const data = await res.json();
+    if (!res.ok) { throw new Error(data.error?.message || 'API error'); }
     const text = data.content.map(c => c.text||'').join('');
     const clean = text.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
@@ -1209,7 +1118,7 @@ No markdown, no extra text, just the JSON.`;
   } catch(err) {
     ['ko','en','ja'].forEach(lang => {
       const el = document.getElementById('desc-'+lang+'-text');
-      el.textContent = 'Generation failed. Please check your connection and try again.';
+      el.textContent = 'Generation failed: ' + err.message;
       el.className = 'desc-text';
     });
   }
@@ -1320,6 +1229,10 @@ function sendReply() {
 async function generateCaption() {
   const product = document.getElementById('mkt-product').value.trim();
   if (!product) { showToast('Please enter a product name'); return; }
+  const saved = localStorage.getItem('dalgi26_api');
+  if (!saved) { showToast('Please set up your API keys first'); return; }
+  const { anthropicKey } = JSON.parse(saved);
+  if (!anthropicKey) { showToast('Anthropic API key missing — go to Settings'); return; }
   const platform = document.getElementById('mkt-platform').value;
   const tone = document.getElementById('mkt-tone').value;
 
@@ -1333,7 +1246,12 @@ Return ONLY a JSON with keys "korean", "english", "japanese". Each caption shoul
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1000,
@@ -1341,6 +1259,7 @@ Return ONLY a JSON with keys "korean", "english", "japanese". Each caption shoul
       })
     });
     const data = await res.json();
+    if (!res.ok) { throw new Error(data.error?.message || 'API error'); }
     const text = data.content.map(c=>c.text||'').join('');
     const clean = text.replace(/```json|```/g,'').trim();
     captionData = JSON.parse(clean);
@@ -1348,7 +1267,7 @@ Return ONLY a JSON with keys "korean", "english", "japanese". Each caption shoul
     document.querySelectorAll('.cap-tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
     document.getElementById('caption-text').textContent = captionData.korean;
   } catch(e) {
-    document.getElementById('caption-text').textContent = 'Generation failed. Please try again.';
+    document.getElementById('caption-text').textContent = 'Generation failed: ' + e.message;
   }
 }
 
